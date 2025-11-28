@@ -292,9 +292,25 @@ body {
 }
 
 .snowflake--snowman {
+  --snowman-size: var(--size, 4px);
+  --snowman-height: calc(var(--snowman-size) * 1.5);
+  --snowman-head-radius: calc(var(--snowman-size) * 0.32);
+  --snowman-head-center: calc(var(--snowman-size) * 0.38);
+  --snowman-base-radius: calc(var(--snowman-size) * 0.475);
+  --snowman-base-center: var(--snowman-size);
+  width: var(--snowman-size);
+  height: var(--snowman-height);
   background:
-    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95) 0 32%, transparent 33%),
-    radial-gradient(circle at 50% 75%, rgba(255, 255, 255, 0.95) 0 38%, transparent 39%);
+    radial-gradient(
+      circle at 50% var(--snowman-head-center),
+      rgba(255, 255, 255, 0.95) 0 var(--snowman-head-radius),
+      transparent calc(var(--snowman-head-radius) + 1px)
+    ),
+    radial-gradient(
+      circle at 50% var(--snowman-base-center),
+      rgba(255, 255, 255, 0.95) 0 var(--snowman-base-radius),
+      transparent calc(var(--snowman-base-radius) + 1px)
+    );
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
