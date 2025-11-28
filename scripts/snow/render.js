@@ -4,7 +4,7 @@ export const spawnSnow = (snowLayer, snowSettings) => {
   if (!snowLayer || !snowSettings) return;
   const { minSize, maxSize, fallSpeed, snowDensity, windSheer, pointThreshold } = snowSettings;
   const flakeCount = Math.round(snowDensity);
-  const EASTER_EGG_CHANCE = 0.01; // 1%
+  const EASTER_EGG_CHANCE = 0.001;
   const computeDelayWindow = (count, speed) => {
     const speedWindow = Math.max(8, speed * 2.2);
     const densityBoost = Math.max(0, (220 / Math.max(count, 1) - 1) * 3);
