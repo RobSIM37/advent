@@ -195,7 +195,50 @@ body {
 }
 
 .snowflake--candy-cane {
-  clip-path: polygon(0 0, 68% 0, 68% 38%, 100% 38%, 100% 68%, 68% 68%, 68% 100%, 0 100%);
+  --cane-thickness: calc(var(--size, 4px) * 0.34);
+  position: absolute;
+  display: block;
+  background: transparent;
+  width: calc(var(--size, 4px) * 1.1);
+  height: calc(var(--size, 4px) * 1.5);
+}
+
+.snowflake--candy-cane::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--cane-thickness);
+  height: 78%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: calc(var(--cane-thickness) * 0.7);
+}
+
+.snowflake--candy-cane::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -6%);
+  width: calc(var(--size, 4px) * 1.05);
+  height: calc(var(--size, 4px) * 1.05);
+  background: conic-gradient(
+      from -120deg,
+      rgba(255, 255, 255, 0.95) 0deg 225deg,
+      transparent 225deg 360deg
+    );
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(
+    closest-side,
+    transparent calc(100% - var(--cane-thickness)),
+    #000 calc(100% - var(--cane-thickness) + 1px)
+  );
+  mask: radial-gradient(
+    closest-side,
+    transparent calc(100% - var(--cane-thickness)),
+    #000 calc(100% - var(--cane-thickness) + 1px)
+  );
 }
 
 .snowflake--tree {
