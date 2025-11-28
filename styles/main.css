@@ -182,6 +182,59 @@ body {
   transform: rotate(-60deg);
 }
 
+.snowflake--easter {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+}
+
+.snowflake--easter::before,
+.snowflake--easter::after {
+  content: "";
+}
+
+.snowflake--candy-cane {
+  clip-path: polygon(0 0, 68% 0, 68% 38%, 100% 38%, 100% 68%, 68% 68%, 68% 100%, 0 100%);
+}
+
+.snowflake--tree {
+  clip-path: polygon(
+    50% 0%,
+    68% 24%,
+    56% 24%,
+    78% 48%,
+    60% 48%,
+    82% 74%,
+    60% 74%,
+    60% 100%,
+    40% 100%,
+    40% 74%,
+    18% 74%,
+    40% 48%,
+    22% 48%,
+    44% 24%,
+    32% 24%
+  );
+}
+
+.snowflake--heart {
+  clip-path: polygon(
+    50% 80%,
+    8% 38%,
+    22% 16%,
+    50% 32%,
+    78% 16%,
+    92% 38%
+  );
+}
+
+.snowflake--snowman {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95) 0 32%, transparent 33%),
+    radial-gradient(circle at 50% 75%, rgba(255, 255, 255, 0.95) 0 38%, transparent 39%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
 @keyframes snow-fall {
   0% {
     transform: translate3d(var(--start-x, 0), -10vh, 0) rotate(0deg);
@@ -561,6 +614,29 @@ body {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   font-weight: 600;
+}
+
+.modal__helper {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.modal__error {
+  font-size: 12px;
+  color: #f6a4a9;
+  line-height: 1.4;
+  display: none;
+}
+
+.modal__field--invalid input {
+  border-color: #f6a4a9;
+  background: rgba(246, 164, 169, 0.08);
+}
+
+.modal__field--invalid .modal__error {
+  display: block;
 }
 
 .modal__field input:focus-visible {

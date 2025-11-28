@@ -77,11 +77,11 @@
       <form class="modal__form" id="snow-form">
         <label class="modal__field">
           <span>Min snowflake size (px)</span>
-          <input type="number" id="snow-min-size" name="minSize" min="1" max="50" step="1" />
+          <input type="number" id="snow-min-size" name="minSize" min="1" max="60" step="1" />
         </label>
         <label class="modal__field">
           <span>Max snowflake size (px)</span>
-          <input type="number" id="snow-max-size" name="maxSize" min="2" max="70" step="1" />
+          <input type="number" id="snow-max-size" name="maxSize" min="2" max="80" step="1" />
         </label>
         <label class="modal__field">
           <span>Point threshold (px)</span>
@@ -89,7 +89,7 @@
             type="number"
             id="snow-point-threshold"
             name="pointThreshold"
-            min="4"
+            min="1"
             max="80"
             step="1"
           />
@@ -104,7 +104,7 @@
         </label>
         <label class="modal__field">
           <span>Wind sheer (negative = left, positive = right)</span>
-          <input type="number" id="snow-wind" name="windSheer" min="-80" max="80" step="1" />
+          <input type="number" id="snow-wind" name="windSheer" min="-120" max="120" step="1" />
         </label>
         <div class="modal__actions">
           <button type="button" class="button button--ghost" id="snow-cancel">Cancel</button>
