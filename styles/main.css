@@ -188,6 +188,8 @@ body {
 .snowflake--easter {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 6px;
+  --scale: 0.56;
+  transform-origin: 50% 50%;
 }
 
 .snowflake--easter::before,
@@ -196,13 +198,15 @@ body {
 }
 
 .snowflake--candy-cane {
-  --cane-thickness: calc(var(--size, 4px) * 0.34);
-  --hook-size: calc(var(--size, 4px) * 1.05);
+  --cane-thickness: calc(var(--size, 4px) * 0.3);
+  --hook-size: calc(var(--size, 4px) * 0.9);
+  --scale: 0.52;
   position: absolute;
   display: block;
   background: transparent;
-  width: calc(var(--size, 4px) * 1.1);
-  height: calc(var(--size, 4px) * 2.4);
+  width: calc(var(--size, 4px) * 0.95);
+  height: calc(var(--size, 4px) * 1.7);
+  transform-origin: 50% 50%;
 }
 
 .snowflake--candy-cane::before {
@@ -260,6 +264,10 @@ body {
     44% 24%,
     32% 24%
   );
+  --scale: 1.2;
+  width: calc(var(--size, 4px) * 1.1);
+  height: calc(var(--size, 4px) * 1.1);
+  transform-origin: 50% 55%;
 }
 
 .snowflake--heart {
@@ -298,6 +306,7 @@ body {
   --snowman-head-center: calc(var(--snowman-size) * 0.38);
   --snowman-base-radius: calc(var(--snowman-size) * 0.475);
   --snowman-base-center: var(--snowman-size);
+  --scale: 0.52;
   width: var(--snowman-size);
   height: var(--snowman-height);
   background:
