@@ -123,6 +123,7 @@ const updateSubtitle = () => {
   } else {
     subtitle.textContent = "Open a window to reveal some cheer!";
   }
+  subtitle.classList.remove("subtitle--loading");
 };
 
 const randomSize = () => {
