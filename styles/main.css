@@ -143,9 +143,10 @@ body {
   top: -10vh;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
-  opacity: 0.9;
+  opacity: 0;
   animation: snow-fall var(--duration, 12s) linear infinite;
   animation-delay: var(--delay, 0s);
+  animation-fill-mode: both;
   --scale: 1;
   --spin-offset: 0deg;
   width: var(--size, 4px);
@@ -196,21 +197,22 @@ body {
 
 .snowflake--candy-cane {
   --cane-thickness: calc(var(--size, 4px) * 0.34);
+  --hook-size: calc(var(--size, 4px) * 1.05);
   position: absolute;
   display: block;
   background: transparent;
   width: calc(var(--size, 4px) * 1.1);
-  height: calc(var(--size, 4px) * 1.5);
+  height: calc(var(--size, 4px) * 2.4);
 }
 
 .snowflake--candy-cane::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 50%;
+  left: 0;
+  top: calc(var(--hook-size) * 0.5 - var(--cane-thickness) * 0.5);
   transform: translateX(-50%);
   width: var(--cane-thickness);
-  height: 78%;
+  height: calc(var(--hook-size) * 1.8);
   background: rgba(255, 255, 255, 0.95);
   border-radius: calc(var(--cane-thickness) * 0.7);
 }
@@ -219,14 +221,13 @@ body {
   content: "";
   position: absolute;
   top: 0;
-  left: 50%;
-  transform: translate(-50%, -6%);
-  width: calc(var(--size, 4px) * 1.05);
-  height: calc(var(--size, 4px) * 1.05);
+  left: calc(var(--cane-thickness) * -0.5);
+  width: var(--hook-size);
+  height: var(--hook-size);
   background: conic-gradient(
-      from -120deg,
-      rgba(255, 255, 255, 0.95) 0deg 225deg,
-      transparent 225deg 360deg
+      from 270deg,
+      rgba(255, 255, 255, 0.95) 0deg 240deg,
+      transparent 240deg 360deg
     );
   border-radius: 50%;
   -webkit-mask: radial-gradient(
