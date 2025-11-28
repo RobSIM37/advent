@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advent Calendar</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <script type="module" src="scripts/main.js" defer></script>
+</head>
+<body>
+  <div class="snow-layer" id="snow-layer"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">Advent Calendar</div>
+      <div class="subtitle" id="subtitle-text">Open a window to reveal today&apos;s cheer!</div>
+    </header>
+    <main>
+      <section class="calendar">
+        <div class="calendar__grid" id="calendar-grid"></div>
+      </section>
+    </main>
+  </div>
+  <div class="hero hidden" id="hero">
+    <div class="hero__backdrop"></div>
+    <div class="hero__card">
+      <button class="hero__close" id="hero-close" aria-label="Close window">&times;</button>
+      <div class="hero__meta">
+        <p class="hero__day" id="hero-day"></p>
+        <p class="hero__title" id="hero-title"></p>
+        <p class="hero__message" id="hero-message"></p>
+      </div>
+      <div class="hero__player" id="hero-player"></div>
+    </div>
+  </div>
+</body>
+</html>
