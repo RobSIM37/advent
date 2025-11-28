@@ -9,8 +9,29 @@ const heroCard = document.querySelector(".hero__card");
 const heroBackdrop = document.querySelector(".hero__backdrop");
 const subtitle = document.getElementById("subtitle-text");
 const snowLayer = document.getElementById("snow-layer");
+const snowSettingsBtn = document.getElementById("snow-settings-btn");
+const snowModal = document.getElementById("snow-modal");
+const snowModalBackdrop = document.getElementById("snow-modal-backdrop");
+const snowSettingsForm = document.getElementById("snow-form");
+const snowClose = document.getElementById("snow-close");
+const snowCancel = document.getElementById("snow-cancel");
+const snowMinInput = document.getElementById("snow-min-size");
+const snowMaxInput = document.getElementById("snow-max-size");
+const snowSpeedInput = document.getElementById("snow-fall-speed");
+const snowDensityInput = document.getElementById("snow-density");
+const snowWindInput = document.getElementById("snow-wind");
+const snowPointThresholdInput = document.getElementById("snow-point-threshold");
 
 const STORAGE_KEY = "advent-opened-days";
+const SNOW_SETTINGS_KEY = "advent-snow-settings";
+const defaultSnowSettings = {
+  minSize: 2,
+  maxSize: 14,
+  fallSpeed: 9,
+  snowDensity: 140,
+  windSheer: 0,
+  pointThreshold: 12,
+};
 
 let videoPool = [
   "dQw4w9WgXcQ",
@@ -47,9 +68,64 @@ const saveOpened = (openedSet) => {
 
 const openedDays = loadOpened();
 
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const normalizeSnowSettings = (settings) => {
+  const minSize = clamp(Number(settings.minSize) || defaultSnowSettings.minSize, 1, 60);
+  const maxSize = clamp(
+    Number(settings.maxSize) || defaultSnowSettings.maxSize,
+    minSize + 1,
+    80
+  );
+  const fallSpeed = clamp(
+    Number(settings.fallSpeed) || defaultSnowSettings.fallSpeed,
+    2,
+    20
+  );
+  const snowDensity = clamp(
+    Number(settings.snowDensity) || defaultSnowSettings.snowDensity,
+    20,
+    400
+  );
+  const windSheer = clamp(
+    Number(settings.windSheer) || defaultSnowSettings.windSheer,
+    -120,
+    120
+  );
+  const pointThreshold = clamp(
+    Number(settings.pointThreshold) || defaultSnowSettings.pointThreshold,
+    minSize,
+    maxSize
+  );
+  return { minSize, maxSize, fallSpeed, snowDensity, windSheer, pointThreshold };
+};
+
+const loadSnowSettings = () => {
+  try {
+    const raw = localStorage.getItem(SNOW_SETTINGS_KEY);
+    if (!raw) return { ...defaultSnowSettings };
+    const parsed = JSON.parse(raw);
+    return normalizeSnowSettings({ ...defaultSnowSettings, ...parsed });
+  } catch (error) {
+    console.warn("Unable to read snow settings; using defaults.", error);
+    return { ...defaultSnowSettings };
+  }
+};
+
+const saveSnowSettings = (settings) => {
+  try {
+    localStorage.setItem(SNOW_SETTINGS_KEY, JSON.stringify(settings));
+  } catch (error) {
+    console.warn("Unable to save snow settings.", error);
+  }
+};
+
+let snowSettings = loadSnowSettings();
+
 const GRID_COLS = 7;
 const occupancy = [];
 const placements = [];
+let windowSizes = [];
 
 const ensureRows = (rowsNeeded) => {
   while (occupancy.length < rowsNeeded) {
@@ -110,8 +186,8 @@ const updateSubtitle = () => {
     );
     subtitle.textContent =
       diffDays === 1
-        ? "1 day until December 1 — countdown begins!"
-        : `${diffDays} days until December 1 — countdown begins!`;
+        ? "1 day until December 1st!"
+        : `${diffDays} days until December 1st!`;
     subtitle.classList.remove("subtitle--loading");
     return;
   }
@@ -127,13 +203,72 @@ const updateSubtitle = () => {
   subtitle.classList.remove("subtitle--loading");
 };
 
-const randomSize = () => {
-  const colSpan = Math.random() < 0.18 ? 2 : 1;
-  const rowSpan = Math.random() < 0.12 ? 2 : 1;
-  return { colSpan, rowSpan };
+const buildWindowSizes = (count) => {
+  const targetRows = Math.random() < 0.5 ? 4 : 5;
+  const targetArea = targetRows * GRID_COLS;
+  const sizes = Array.from({ length: count }, () => ({ colSpan: 1, rowSpan: 1 }));
+  let currentArea = count;
+  const basePool = sizes.map((_, index) => index);
+  const getPool = () =>
+    basePool.filter((idx) => sizes[idx].colSpan === 1 && sizes[idx].rowSpan === 1);
+  let available = [...getPool()];
+
+  while (currentArea < targetArea && available.length) {
+    const remaining = targetArea - currentArea;
+    const idx = available.splice(Math.floor(Math.random() * available.length), 1)[0];
+    const options = [];
+    if (remaining >= 3) options.push({ colSpan: 2, rowSpan: 2 });
+    if (remaining >= 1) {
+      options.push({ colSpan: 2, rowSpan: 1 });
+      options.push({ colSpan: 1, rowSpan: 2 });
+    }
+    if (!options.length) break;
+    const choice = options[Math.floor(Math.random() * options.length)];
+    const added = choice.colSpan * choice.rowSpan - 1;
+    if (added <= remaining) {
+      sizes[idx] = choice;
+      currentArea += added;
+    }
+    if (!available.length && currentArea < targetArea) {
+      available = [...getPool()];
+    }
+  }
+
+  return { sizes, targetRows };
 };
 
-const createWindow = (day) => {
+const tryPlanLayout = (sizes, targetRows) => {
+  occupancy.length = 0;
+  ensureRows(targetRows);
+
+  const canPlaceBounded = (row, col, rowSpan, colSpan) => {
+    if (row + rowSpan > targetRows) return false;
+    if (col + colSpan > GRID_COLS) return false;
+    return canPlace(row, col, rowSpan, colSpan);
+  };
+
+  const plan = [];
+  for (let index = 0; index < sizes.length; index += 1) {
+    const { colSpan, rowSpan } = sizes[index];
+    let placed = false;
+    for (let r = 0; r < targetRows; r += 1) {
+      for (let c = 0; c <= GRID_COLS - colSpan; c += 1) {
+        if (canPlaceBounded(r, c, rowSpan, colSpan)) {
+          plan.push({ row: r, col: c, colSpan, rowSpan });
+          reserve(r, c, rowSpan, colSpan);
+          placed = true;
+          break;
+        }
+      }
+      if (placed) break;
+    }
+    if (!placed) return null;
+  }
+
+  return plan;
+};
+
+const createWindow = (day, size) => {
   const button = document.createElement("button");
   const isOpened = openedDays.has(day.day);
   const classes = ["window"];
@@ -149,8 +284,12 @@ const createWindow = (day) => {
   button.type = "button";
   button.dataset.day = day.day;
 
-  const { colSpan, rowSpan } = randomSize();
-  const { row, col } = placeWindow(colSpan, rowSpan);
+  const { colSpan, rowSpan, row, col } = size || {
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  };
   button.style.gridColumn = `${col + 1} / span ${colSpan}`;
   button.style.gridRow = `${row + 1} / span ${rowSpan}`;
   placements.push({ button, row, col, colSpan, rowSpan });
@@ -277,11 +416,41 @@ const buildDays = () => {
 };
 
 const renderCalendar = () => {
-  occupancy.length = 0;
-  placements.length = 0;
   calendarGrid.innerHTML = "";
-  shuffle(days).forEach((day) => {
-    calendarGrid.appendChild(createWindow(day));
+  placements.length = 0;
+  const { sizes, targetRows } = buildWindowSizes(days.length);
+  let plan = null;
+
+  for (let attempt = 0; attempt < 30 && !plan; attempt += 1) {
+    const shuffledSizes = shuffle([...sizes]);
+    plan = tryPlanLayout(shuffledSizes, targetRows);
+    if (plan) {
+      windowSizes = shuffledSizes.map((size, index) => ({
+        ...size,
+        row: plan[index].row,
+        col: plan[index].col,
+      }));
+    }
+  }
+
+  if (!plan) {
+    occupancy.length = 0;
+    placements.length = 0;
+    ensureRows(targetRows);
+    windowSizes = sizes.map((size, index) => ({
+      ...size,
+      row: Math.floor(index / GRID_COLS),
+      col: index % GRID_COLS,
+      colSpan: 1,
+      rowSpan: 1,
+    }));
+    windowSizes.forEach(({ row, col, rowSpan, colSpan }) => {
+      reserve(row, col, rowSpan, colSpan);
+    });
+  }
+
+  shuffle(days).forEach((day, index) => {
+    calendarGrid.appendChild(createWindow(day, windowSizes[index]));
   });
   applyRowOffsets();
   updateSubtitle();
@@ -332,20 +501,57 @@ const loadVideoContent = async () => {
   }
 };
 
+const setSnowFormValues = (settings) => {
+  if (!snowSettingsForm) return;
+  snowMinInput.value = settings.minSize;
+  snowMaxInput.value = settings.maxSize;
+  snowSpeedInput.value = settings.fallSpeed;
+  snowDensityInput.value = settings.snowDensity;
+  snowWindInput.value = settings.windSheer;
+  snowPointThresholdInput.value = settings.pointThreshold;
+};
+
+const openSnowModal = () => {
+  if (!snowModal) return;
+  setSnowFormValues(snowSettings);
+  snowModal.classList.remove("hidden");
+  snowModal.setAttribute("aria-hidden", "false");
+};
+
+const closeSnowModal = () => {
+  if (!snowModal) return;
+  snowModal.classList.add("hidden");
+  snowModal.setAttribute("aria-hidden", "true");
+};
+
 const spawnSnow = () => {
   if (!snowLayer) return;
-  const flakeCount = 140;
+  const { minSize, maxSize, fallSpeed, snowDensity, windSheer } = snowSettings;
+  const flakeCount = Math.round(snowDensity);
   snowLayer.innerHTML = "";
   for (let i = 0; i < flakeCount; i += 1) {
     const flake = document.createElement("span");
-    const isBranch = Math.random() < 0.22;
+    const size = minSize + Math.random() * (maxSize - minSize);
+    const isBranch = size >= snowSettings.pointThreshold;
     flake.className = isBranch ? "snowflake snowflake--branch" : "snowflake";
-    const size = isBranch ? 8 + Math.random() * 10 : 2 + Math.random() * 4;
-    const duration = 5 + Math.random() * 6;
+    const branchSize = clamp(size + 4, minSize, maxSize + 6);
+    const thickness = clamp(size * 0.22, 2, 8);
+    const duration = Math.max(2, fallSpeed + (Math.random() * 4 - 2));
     const delay = Math.random() * 6;
-    const startX = Math.random() * 100;
-    const endX = startX + (Math.random() * 20 - 10);
-    flake.style.setProperty("--size", `${size}px`);
+    const drift = Math.random() * 24 - 12 + windSheer;
+    const windFactor = Math.min(1, Math.abs(windSheer) / 80);
+    const buffer = 30 + windFactor * 30; // widen spawn band outside viewport
+    const upwindBias = 0.2 + windFactor * 0.25;
+    let startX = -buffer + Math.random() * (100 + buffer * 2); // spread broadly across the top
+    const shouldBias = Math.random() < upwindBias;
+    if (windSheer > 0 && shouldBias) {
+      startX = -buffer + Math.random() * buffer * 1.6; // enter from left
+    } else if (windSheer < 0 && shouldBias) {
+      startX = 100 + Math.random() * buffer * 1.6; // enter from right
+    }
+    const endX = startX + drift;
+    flake.style.setProperty("--size", `${isBranch ? branchSize : size}px`);
+    flake.style.setProperty("--thickness", `${thickness}px`);
     flake.style.setProperty("--duration", `${duration}s`);
     flake.style.setProperty("--delay", `${delay}s`);
     flake.style.setProperty("--start-x", `${startX}vw`);
@@ -355,12 +561,41 @@ const spawnSnow = () => {
   }
 };
 
+const applySnowSettings = (event) => {
+  event.preventDefault();
+  const newSettings = normalizeSnowSettings({
+    minSize: snowMinInput.value,
+    maxSize: snowMaxInput.value,
+    fallSpeed: snowSpeedInput.value,
+    snowDensity: snowDensityInput.value,
+    windSheer: snowWindInput.value,
+    pointThreshold: snowPointThresholdInput.value,
+  });
+  snowSettings = newSettings;
+  saveSnowSettings(newSettings);
+  spawnSnow();
+  closeSnowModal();
+};
+
 const init = async () => {
   await loadVideoContent();
   buildDays();
   renderCalendar();
   updateSubtitle();
+  setSnowFormValues(snowSettings);
   spawnSnow();
 };
 
 init();
+
+snowSettingsBtn?.addEventListener("click", openSnowModal);
+snowClose?.addEventListener("click", closeSnowModal);
+snowCancel?.addEventListener("click", closeSnowModal);
+snowModalBackdrop?.addEventListener("click", closeSnowModal);
+snowSettingsForm?.addEventListener("submit", applySnowSettings);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && snowModal && !snowModal.classList.contains("hidden")) {
+    closeSnowModal();
+  }
+});

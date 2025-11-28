@@ -15,7 +15,38 @@
   <div class="snow-layer" id="snow-layer"></div>
   <div class="app">
     <header class="topbar">
-      <div class="brand">Calendar 4 Kate</div>
+      <div class="topbar__row">
+        <div class="brand">Calendar 4 Kate</div>
+        <button class="icon-button" id="snow-settings-btn" aria-label="Snowfall settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="12" r="1.2" />
+              <g stroke-width="1.6">
+                <line x1="12" y1="3" x2="12" y2="8" />
+                <line x1="12" y1="16" x2="12" y2="21" />
+                <line x1="4.8" y1="6" x2="9.2" y2="9" />
+                <line x1="14.8" y1="15" x2="19.2" y2="18" />
+                <line x1="4.8" y1="18" x2="9.2" y2="15" />
+                <line x1="14.8" y1="9" x2="19.2" y2="6" />
+              </g>
+              <g stroke-width="1.4">
+                <line x1="12" y1="5" x2="10.2" y2="6.4" />
+                <line x1="12" y1="5" x2="13.8" y2="6.4" />
+                <line x1="12" y1="19" x2="10.2" y2="17.6" />
+                <line x1="12" y1="19" x2="13.8" y2="17.6" />
+                <line x1="6.3" y1="7.4" x2="8.6" y2="7.8" />
+                <line x1="6.3" y1="7.4" x2="7.4" y2="9.4" />
+                <line x1="17.7" y1="16.6" x2="15.4" y2="16.2" />
+                <line x1="17.7" y1="16.6" x2="16.6" y2="14.6" />
+                <line x1="6.3" y1="16.6" x2="7.4" y2="14.6" />
+                <line x1="6.3" y1="16.6" x2="8.6" y2="16.2" />
+                <line x1="17.7" y1="7.4" x2="16.6" y2="9.4" />
+                <line x1="17.7" y1="7.4" x2="15.4" y2="7.8" />
+              </g>
+            </g>
+          </svg>
+        </button>
+      </div>
       <div class="subtitle subtitle--loading" id="subtitle-text"></div>
     </header>
     <main>
@@ -34,6 +65,52 @@
         <p class="hero__message" id="hero-message"></p>
       </div>
       <div class="hero__player" id="hero-player"></div>
+    </div>
+  </div>
+  <div class="modal hidden" id="snow-modal" aria-hidden="true">
+    <div class="modal__backdrop" id="snow-modal-backdrop"></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="snow-modal-title">
+      <header class="modal__header">
+        <div class="modal__title" id="snow-modal-title">Snowfall settings</div>
+        <button class="modal__close" id="snow-close" aria-label="Close snow settings">&times;</button>
+      </header>
+      <form class="modal__form" id="snow-form">
+        <label class="modal__field">
+          <span>Min snowflake size (px)</span>
+          <input type="number" id="snow-min-size" name="minSize" min="1" max="50" step="1" />
+        </label>
+        <label class="modal__field">
+          <span>Max snowflake size (px)</span>
+          <input type="number" id="snow-max-size" name="maxSize" min="2" max="70" step="1" />
+        </label>
+        <label class="modal__field">
+          <span>Point threshold (px)</span>
+          <input
+            type="number"
+            id="snow-point-threshold"
+            name="pointThreshold"
+            min="4"
+            max="80"
+            step="1"
+          />
+        </label>
+        <label class="modal__field">
+          <span>Fall speed (seconds)</span>
+          <input type="number" id="snow-fall-speed" name="fallSpeed" min="2" max="20" step="0.5" />
+        </label>
+        <label class="modal__field">
+          <span>Snow density (flakes)</span>
+          <input type="number" id="snow-density" name="snowDensity" min="20" max="400" step="10" />
+        </label>
+        <label class="modal__field">
+          <span>Wind sheer (negative = left, positive = right)</span>
+          <input type="number" id="snow-wind" name="windSheer" min="-80" max="80" step="1" />
+        </label>
+        <div class="modal__actions">
+          <button type="button" class="button button--ghost" id="snow-cancel">Cancel</button>
+          <button type="submit" class="button">Apply</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>
