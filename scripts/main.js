@@ -110,8 +110,9 @@ const updateSubtitle = () => {
     );
     subtitle.textContent =
       diffDays === 1
-        ? "1 day until December 1—countdown begins!"
-        : `${diffDays} days until December 1st!`;
+        ? "1 day until December 1 — countdown begins!"
+        : `${diffDays} days until December 1 — countdown begins!`;
+    subtitle.classList.remove("subtitle--loading");
     return;
   }
 
