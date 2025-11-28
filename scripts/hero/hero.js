@@ -69,11 +69,13 @@ export const createHero = ({
   heroPlayer,
   closeButton,
 }) => {
+  // Show day number only; keep title hidden for a cleaner player.
+  if (heroDay) heroDay.hidden = false;
+  if (heroTitle) heroTitle.hidden = true;
+
   const openHero = (day, origin) => {
     if (!heroEl) return;
     if (heroDay) heroDay.textContent = `Day ${day.day}`;
-    if (heroTitle) heroTitle.textContent = day.title;
-    if (heroMessage) heroMessage.textContent = day.message || "";
     clearPlayer(heroPlayer);
 
     if (heroPlayer) {
